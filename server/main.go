@@ -1,41 +1,29 @@
 package main
 
 import (
-	"context"
+	"log"
 
 	"module/config"
-
-	"log"
 )
 
 func main() {
-	log.Println(1111)
+	// Use a service account
 	app := config.InitializeAppWithServiceAccount()
 
-	log.Println(app)
-
-	ctx := context.Background()
-
-	client, err := app.Firestore(ctx)
+	client, err := app.Firestore(config.Ctx)
 	if err != nil {
+		log.Println("firestore")
 		log.Fatalln(err)
 	}
-	defer client.Close()
 
-	_, _, err = client.Collection("users").Add(ctx, map[string]interface{}{
-		"first": "Ada",
+	_, _, err = client.Collection("users").Add(config.Ctx, map[string]interface{}{
+		"first": "alallala",
 		"last":  "Lovelace",
 		"born":  1815,
 	})
 	if err != nil {
 		log.Fatalf("Failed adding alovelace: %v", err)
 	}
+	defer client.Close()
 
-	// r := gin.Default()
-	// r.GET("/ping", func(c *gin.Context) {
-	// 	c.JSON(http.StatusOK, gin.H{
-	// 		"message": "pong",
-	// 	})
-	// })
-	// r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
