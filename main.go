@@ -4,7 +4,17 @@ import (
 	"log"
 
 	"module/config"
+
+	"github.com/gin-gonic/gin"
 )
+
+func setupRouter() *gin.Engine {
+	r := gin.Default()
+	r.GET("/", func(c *gin.Context) {
+		c.String(200, "OK")
+	})
+	return r
+}
 
 func main() {
 	// Use a service account
@@ -25,5 +35,8 @@ func main() {
 		log.Fatalf("Failed adding alovelace: %v", err)
 	}
 	defer client.Close()
+
+	r := setupRouter()
+	r.Run(":8080") // listen and serve on 0.0.0.0:8080
 
 }
