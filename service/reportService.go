@@ -1,27 +1,32 @@
 package service
 
 import (
-	"log"
-	"module/config"
+	"domain"
+	"repository"
+
+	"cloud.google.com/go/firestore"
 )
 
-func Example() {
-	// Use a service account
-	app := config.InitializeAppWithServiceAccount()
+func FindReports() []domain.Report {
+	return repository.FindAllReports()
+}
 
-	client, err := app.Firestore(config.Ctx)
-	if err != nil {
-		log.Println("firestore")
-		log.Fatalln(err)
-	}
+func FindReport() {
 
-	_, _, err = client.Collection("users").Add(config.Ctx, map[string]interface{}{
-		"first": "aaaaaaa",
-		"last":  "Lovelace",
-		"born":  1815,
-	})
-	if err != nil {
-		log.Fatalf("Failed adding alovelace: %v", err)
-	}
-	defer client.Close()
+}
+
+func Join(report domain.Report) (*firestore.DocumentRef, *firestore.WriteResult) {
+	return repository.SaveReport(report)
+}
+
+func DelReport() {
+
+}
+
+func ModifyReport() {
+
+}
+
+func ToggleLikeOfReport() {
+
 }

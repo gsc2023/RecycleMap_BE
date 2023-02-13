@@ -6,4 +6,5 @@ use (
 	./service
 	./repository
 	./module/config
+	./domain
 )
