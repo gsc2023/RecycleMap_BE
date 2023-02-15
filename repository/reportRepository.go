@@ -7,24 +7,20 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/mitchellh/mapstructure"
+	"google.golang.org/api/iterator"
 )
 
 func SaveReport(report domain.Report) (*firestore.DocumentRef, *firestore.WriteResult) {
-	client := config.GetFirestore()
-
-	ref, wr, err := client.Collection("reports").Add(config.Ctx, report)
+	ref, wr, err := config.GetFirestore().Collection("reports").Add(config.Ctx, report)
 	if err != nil {
 		log.Fatalf("error save report: %v\n", err)
 	}
 
-	defer client.Close()
 	return ref, wr
 }
 
 func FindReportByID() (ID string, report *domain.Report) {
-	client := config.GetFirestore()
-
-	dsnap, err := client.Collection("reports").Doc(ID).Get(config.Ctx)
+	dsnap, err := config.GetFirestore().Collection("reports").Doc(ID).Get(config.Ctx)
 	if err != nil {
 		log.Fatalf("error find report by id: %v\n", err)
 	}
@@ -34,50 +30,60 @@ func FindReportByID() (ID string, report *domain.Report) {
 		log.Fatalf("error find report by id: %v\n", err)
 	}
 
-	defer client.Close()
 	return
 }
 
-func FindReportsByUserId() {
-
-}
-
-func FindReportByName() {
-
-}
-
-func FindAllReports() (reports []domain.Report) {
-	client := config.GetFirestore()
-
-	dsnap, err := client.Collection("reports").Documents(config.Ctx).GetAll()
-	if err != nil {
-		log.Fatalf("error find all reports: %v\n", err)
-	}
-
-	for _, val := range dsnap {
-		report := domain.Report{}
-		err = mapstructure.Decode(val.Data(), &report)
+func FindAllReports() (reportDtos []domain.ReportDto) {
+	iter := config.GetFirestore().Collection("reports").Documents(config.Ctx)
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
 		if err != nil {
 			log.Fatalf("error find all reports: %v\n", err)
 		}
 
-		log.Println(val.Data(), report)
+		report := domain.Report{}
+		err = mapstructure.Decode(doc.Data(), &report)
+		if err != nil {
+			log.Fatalf("error find all reports: %v\n", err)
+		}
+
+		reportDtos = append(reportDtos, domain.ReportDto{ID: doc.Ref.ID, Report: report})
+	}
+
+	return
+}
+
+func SetReport(ID string, report *domain.Report) *firestore.WriteResult {
+	wr, err := config.GetFirestore().Collection("reports").Doc(ID).Set(config.Ctx, report)
+	if err != nil {
+		log.Fatalf("error set report: %v\n", err)
+	}
+
+	return wr
+}
+
+func FindReportsByUserId(userID string) (reports []domain.Report) {
+	iter := config.GetFirestore().Collection("reports").Where("userID", "==", userID).Documents(config.Ctx)
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Fatalf("error find reports by userID: %v\n", err)
+		}
+
+		report := domain.Report{}
+		err = mapstructure.Decode(doc.Data(), &report)
+		if err != nil {
+			log.Fatalf("error find all reports: %v\n", err)
+		}
 
 		reports = append(reports, report)
 	}
 
-	defer client.Close()
 	return
-}
-
-func ModifyReport(ID string, report *domain.Report) *firestore.WriteResult {
-	client := config.GetFirestore()
-
-	wr, err := client.Collection("reports").Doc(ID).Set(config.Ctx, report)
-	if err != nil {
-		log.Fatalf("error modify report: %v\n", err)
-	}
-
-	defer client.Close()
-	return wr
 }

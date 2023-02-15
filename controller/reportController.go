@@ -2,13 +2,10 @@ package controller
 
 import (
 	"domain"
-	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mitchellh/mapstructure"
 
 	"service"
 )
@@ -31,22 +28,17 @@ func getReport(c *gin.Context) {
 }
 
 func addReport(c *gin.Context) {
-	body := c.Request.Body
-	value, err := ioutil.ReadAll(body)
-	if err != nil {
-		log.Fatalf("[controller:report] error addReport : %v\n", err)
-	}
-
-	var data map[string]interface{}
-	json.Unmarshal([]byte(value), &data)
 
 	report := domain.Report{}
-	err = mapstructure.Decode(data, &report)
+	err := c.Bind(&report)
+
 	if err != nil {
 		log.Fatalf("[controller:report] error addReport : %v\n", err)
 	}
 
-	service.Join(report)
+	ref, _ := service.Join(report)
+
+	c.String(http.StatusOK, ref.ID)
 }
 
 func toggleLikeOfReport(c *gin.Context) {

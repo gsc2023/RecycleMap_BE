@@ -7,7 +7,7 @@ import (
 	"cloud.google.com/go/firestore"
 )
 
-func FindReports() []domain.Report {
+func FindReports() []domain.ReportDto {
 	return repository.FindAllReports()
 }
 
