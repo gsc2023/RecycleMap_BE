@@ -57,7 +57,7 @@ func FindAllReports() (reportDtos []domain.ReportDto) {
 	return
 }
 
-func SetReport(ID string, report *domain.Report) *firestore.WriteResult {
+func SetReport(ID string, report domain.Report) *firestore.WriteResult {
 	wr, err := config.GetFirestore().Collection("reports").Doc(ID).Set(config.Ctx, report)
 	if err != nil {
 		log.Printf("error set report: %v\n", err)

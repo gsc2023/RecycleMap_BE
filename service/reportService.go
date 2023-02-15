@@ -23,8 +23,8 @@ func DelReport(ID string) {
 	repository.DelReport(ID)
 }
 
-func ModifyReport() {
-
+func ModifyReport(ID string, report domain.Report) {
+	repository.SetReport(ID, report)
 }
 
 func ToggleLikeOfReport() {
