@@ -11,16 +11,16 @@ func FindReports() []domain.ReportDto {
 	return repository.FindAllReports()
 }
 
-func FindReport(reportId string) domain.ReportDto {
-	return repository.FindReportByID(reportId)
+func FindReport(ID string) domain.ReportDto {
+	return repository.FindReportByID(ID)
 }
 
 func Join(report domain.Report) (*firestore.DocumentRef, *firestore.WriteResult) {
 	return repository.SaveReport(report)
 }
 
-func DelReport() {
-
+func DelReport(ID string) {
+	repository.DelReport(ID)
 }
 
 func ModifyReport() {

@@ -48,7 +48,12 @@ func toggleLikeOfReport(c *gin.Context) {
 }
 
 func delReport(c *gin.Context) {
+	ID := domain.UriParameter{}
+	c.ShouldBindUri(&ID)
 
+	service.DelReport(ID.ID)
+
+	c.Status(http.StatusOK)
 }
 
 func modifyReport(c *gin.Context) {
