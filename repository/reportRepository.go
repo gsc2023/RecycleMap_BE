@@ -19,18 +19,19 @@ func SaveReport(report domain.Report) (*firestore.DocumentRef, *firestore.WriteR
 	return ref, wr
 }
 
-func FindReportByID() (ID string, report *domain.Report) {
+func FindReportByID(ID string) domain.ReportDto {
 	dsnap, err := config.GetFirestore().Collection("reports").Doc(ID).Get(config.Ctx)
 	if err != nil {
 		log.Fatalf("error find report by id: %v\n", err)
 	}
 
+	report := domain.Report{}
 	err = mapstructure.Decode(dsnap.Data(), &report)
 	if err != nil {
 		log.Fatalf("error find report by id: %v\n", err)
 	}
 
-	return
+	return domain.ReportDto{ID: ID, Report: report}
 }
 
 func FindAllReports() (reportDtos []domain.ReportDto) {
@@ -65,7 +66,7 @@ func SetReport(ID string, report *domain.Report) *firestore.WriteResult {
 	return wr
 }
 
-func FindReportsByUserId(userID string) (reports []domain.Report) {
+func FindReportsByUserId(userID string) (reportDtos []domain.ReportDto) {
 	iter := config.GetFirestore().Collection("reports").Where("userID", "==", userID).Documents(config.Ctx)
 	for {
 		doc, err := iter.Next()
@@ -82,7 +83,7 @@ func FindReportsByUserId(userID string) (reports []domain.Report) {
 			log.Fatalf("error find all reports: %v\n", err)
 		}
 
-		reports = append(reports, report)
+		reportDtos = append(reportDtos, domain.ReportDto{ID: doc.Ref.ID, Report: report})
 	}
 
 	return

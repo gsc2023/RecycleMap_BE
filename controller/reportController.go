@@ -12,11 +12,11 @@ import (
 
 func reportRouter(report *gin.RouterGroup) {
 	report.GET("/", getAllReport)
-	report.GET("/:reportId", getReport)
+	report.GET("/:ID", getReport)
 	report.POST("/new", addReport)
-	report.POST("/:locationId/like", toggleLikeOfReport)
-	report.DELETE("/:reportId", delReport)
-	report.PATCH("/:reportId", modifyReport)
+	report.POST("/:ID/like", toggleLikeOfReport)
+	report.DELETE("/:ID", delReport)
+	report.PATCH("/:ID", modifyReport)
 }
 
 func getAllReport(c *gin.Context) {
@@ -24,11 +24,13 @@ func getAllReport(c *gin.Context) {
 }
 
 func getReport(c *gin.Context) {
+	ID := domain.UriParameter{}
+	c.ShouldBindUri(&ID)
 
+	c.JSON(http.StatusOK, service.FindReport(ID.ID))
 }
 
 func addReport(c *gin.Context) {
-
 	report := domain.Report{}
 	err := c.Bind(&report)
 

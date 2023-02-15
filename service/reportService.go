@@ -11,8 +11,8 @@ func FindReports() []domain.ReportDto {
 	return repository.FindAllReports()
 }
 
-func FindReport() {
-
+func FindReport(reportId string) domain.ReportDto {
+	return repository.FindReportByID(reportId)
 }
 
 func Join(report domain.Report) (*firestore.DocumentRef, *firestore.WriteResult) {
