@@ -6,6 +6,7 @@ import (
 
 	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go"
+	"firebase.google.com/go/auth"
 	"google.golang.org/api/option"
 )
 
@@ -28,6 +29,16 @@ func initializeAppWithServiceAccount() *firebase.App {
 
 func GetFirestore() *firestore.Client {
 	client, err := App.Firestore(Ctx)
+	if err != nil {
+		log.Println("firestore")
+		log.Fatalln(err)
+	}
+
+	return client
+}
+
+func GetAuth() *auth.Client {
+	client, err := App.Auth(Ctx)
 	if err != nil {
 		log.Println("firestore")
 		log.Fatalln(err)
