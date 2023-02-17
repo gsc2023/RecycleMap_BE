@@ -38,7 +38,7 @@ func addReport(c *gin.Context) {
 		log.Printf("[controller:report] error addReport : %v\n", err)
 	}
 
-	ref, _ := service.Join(report)
+	ref, _ := service.JoinReport(report)
 
 	c.String(http.StatusOK, ref.ID)
 }

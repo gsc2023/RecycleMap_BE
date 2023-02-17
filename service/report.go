@@ -15,7 +15,7 @@ func FindReport(ID string) domain.ReportDto {
 	return repository.FindReportByID(ID)
 }
 
-func Join(report domain.Report) (*firestore.DocumentRef, *firestore.WriteResult) {
+func JoinReport(report domain.Report) (*firestore.DocumentRef, *firestore.WriteResult) {
 	return repository.SaveReport(report)
 }
 
