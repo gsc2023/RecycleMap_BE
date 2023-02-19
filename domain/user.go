@@ -5,6 +5,7 @@ type User struct {
 	EmailVerified bool
 	PhoneNumber   string
 	Password      string
+	DisplayName   string
 	PhotoURL      string
 	Disabled      bool
 }
