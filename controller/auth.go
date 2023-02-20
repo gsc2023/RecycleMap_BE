@@ -24,11 +24,24 @@ func signup(c *gin.Context) {
 		log.Printf("[controller:user] error signup : %v\n", err)
 	}
 
-	c.JSON(http.StatusOK, service.JoinUser(user))
+	u, err := service.JoinUser(user)
+
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+	}
+
+	c.JSON(http.StatusOK, u)
 }
 
 func signin(c *gin.Context) {
+	signinRequestDto := domain.SigninRequestDto{}
+	err := c.Bind(&signinRequestDto)
 
+	if err != nil {
+		log.Printf("[controller:user] error signup : %v\n", err)
+	}
+
+	c.JSON(http.StatusOK, service.SignIn(signinRequestDto))
 }
 
 func checkEmailDuplicate(c *gin.Context) {
