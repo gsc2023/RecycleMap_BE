@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"domain"
 	"net/http"
+	"service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,11 +19,14 @@ func locationRouter(location *gin.RouterGroup) {
 }
 
 func getAll(c *gin.Context) {
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, service.FindLocations())
 }
 
 func findById(c *gin.Context) {
-	c.Status(http.StatusOK)
+	ID := domain.LocationUrlParameter{}
+	c.ShouldBindUri(&ID)
+
+	c.JSON(http.StatusOK, service.FindLocation(ID.ID))
 }
 
 func setBookmark(c *gin.Context) {
