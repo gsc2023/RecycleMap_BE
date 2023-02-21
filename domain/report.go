@@ -9,3 +9,8 @@ type Report struct {
 	Content        string
 	Recommendation int
 }
+
+type ReportDto struct {
+	ID     string
+	Report Report
+}
