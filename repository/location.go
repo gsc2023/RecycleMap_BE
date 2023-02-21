@@ -5,11 +5,12 @@ import (
 	"log"
 	"module/config"
 
+	"cloud.google.com/go/firestore"
 	"github.com/mitchellh/mapstructure"
 	"google.golang.org/api/iterator"
 )
 
-func FindAllLocations() (locationDtos []domain.LocationDto) {
+func Find() (locationDtos []domain.LocationDto) {
 	iter := config.GetFirestore().Collection("locations").Documents(config.Ctx)
 	for {
 		doc, err := iter.Next()
@@ -32,7 +33,7 @@ func FindAllLocations() (locationDtos []domain.LocationDto) {
 	return
 }
 
-func FindLocationByID(ID string) domain.LocationDto {
+func FindOne(ID string) domain.LocationDto {
 	dsnap, err := config.GetFirestore().Collection("locations").Doc(ID).Get(config.Ctx)
 	if err != nil {
 		log.Printf("error find location by id: %v\n", err)
@@ -45,4 +46,13 @@ func FindLocationByID(ID string) domain.LocationDto {
 	}
 
 	return domain.LocationDto{ID: ID, Location: location}
+}
+
+func Save(location domain.Location) (*firestore.DocumentRef, *firestore.WriteResult) {
+	ref, wr, err := config.GetFirestore().Collection("locations").Add(config.Ctx, location)
+	if err != nil {
+		log.Printf("error save location: %v\n", err)
+	}
+
+	return ref, wr
 }
