@@ -25,12 +25,22 @@ func JoinUser(user domain.User) (*auth.UserRecord, error) {
 	return u, err
 }
 
-func SignIn(request domain.SigninRequestDto) string {
+func SignIn(request domain.SigninRequestDto) (string, error) {
 	token, err := config.GetAuth().CustomToken(config.Ctx, request.UID)
 	if err != nil {
 		log.Printf("error minting custom token: %v\n", err)
 	}
 
 	log.Printf("Got custom token: %v\n", token)
-	return token
+	return token, err
+}
+
+func VerifyToken(accessToken domain.AccessTokenContainer) (*auth.Token, error) {
+	token, err := config.GetAuth().VerifyIDToken(config.Ctx, accessToken.AccessToken)
+	if err != nil {
+		log.Printf("error verifying ID token: %v\n", err)
+	}
+
+	log.Printf("Verified ID token: %v\n", token)
+	return token, err
 }
