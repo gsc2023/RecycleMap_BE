@@ -43,6 +43,13 @@ func ToggleLikeOfReport(token *auth.Token, ID string) (status bool, err error) {
 			return false, err
 		}
 
+		err = HandleLikeOfReport(ID, true)
+
+		if err != nil {
+			log.Printf("error toggle like: %v\n", err)
+			return false, err
+		}
+
 		return true, err
 	}
 
@@ -66,5 +73,35 @@ func ToggleLikeOfReport(token *auth.Token, ID string) (status bool, err error) {
 		return false, err
 	}
 
+	err = HandleLikeOfReport(ID, toggleLike) // report 좋아요 조절하기
+
+	if err != nil {
+		log.Printf("error toggle like: %v\n", err)
+		return false, err
+	}
+
 	return toggleLike, err
+}
+
+func HandleLikeOfReport(ID string, status bool) error {
+	reportDto, err := repository.FindReportByID(ID)
+
+	if err != nil {
+		log.Printf("error handle like: %v\n", err)
+		return err
+	}
+
+	if status {
+		reportDto.Report.Like++
+	} else {
+		reportDto.Report.Like--
+	}
+
+	_, err = repository.SetReport(ID, reportDto.Report)
+
+	if err != nil {
+		log.Printf("error handle like: %v\n", err)
+	}
+
+	return err
 }
