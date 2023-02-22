@@ -31,10 +31,17 @@ func DelReport(token *auth.Token, ID string) (*firestore.WriteResult, error) {
 		return nil, err
 	}
 
+	err = delLike(ID)
+
+	if err != nil {
+		log.Printf("error delete report: %v\n", err)
+		return nil, err
+	}
+
 	return repository.DelReport(ID)
 }
 
-func ModifyReport(token *auth.Token, ID string, report domain.ReportDao) (*firestore.WriteResult, error) {
+func ModifyReport(token *auth.Token, ID string, newReport domain.ReportDao) (*firestore.WriteResult, error) {
 	err := IsOwner(repository.IsReportOwner(token.UID, ID))
 
 	if err != nil {
@@ -42,7 +49,18 @@ func ModifyReport(token *auth.Token, ID string, report domain.ReportDao) (*fires
 		return nil, err
 	}
 
-	return repository.SetReport(ID, report)
+	reportDto, err := repository.FindReportByID(ID)
+
+	if err != nil {
+		log.Printf("error modify report: %v\n", err)
+		return nil, err
+	}
+
+	newReport.UID = token.UID
+	newReport.Like = reportDto.Report.Like
+	newReport.Disabled = reportDto.Report.Disabled
+
+	return repository.SetReport(ID, newReport)
 }
 
 func ToggleLikeOfReport(token *auth.Token, ID string) (status bool, err error) {
@@ -152,4 +170,23 @@ func makeReportDisable(ID string) error {
 	}
 
 	return err
+}
+
+func delLike(ID string) error {
+	likeDtos, err := repository.FindLikeByReportID(ID)
+
+	if err != nil {
+		log.Printf("error delete like: %v\n", err)
+		return err
+	}
+
+	for _, val := range likeDtos {
+		_, err := repository.DelLike(val.ID)
+
+		if err != nil {
+			log.Printf("error delete like: %v\n", err)
+		}
+	}
+
+	return nil
 }
