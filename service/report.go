@@ -12,7 +12,7 @@ import (
 const LIKE_WHEN_BE_LOCATION = 50
 
 func FindReports() ([]domain.ReportDto, error) {
-	return repository.FindAllReports()
+	return repository.FindReportsExecptDisabled()
 }
 
 func FindReport(ID string) (domain.ReportDto, error) {
@@ -72,7 +72,7 @@ func ToggleLikeOfReport(token *auth.Token, ID string) (status bool, err error) {
 		return false, err
 	}
 
-	cnt, err := HandleLikeOfReport(ID, toggleLike) // report 좋아요 조절하기
+	cnt, err := handleLikeOfReport(ID, toggleLike) // report 좋아요 조절하기
 
 	if err != nil {
 		log.Printf("error toggle like: %v\n", err)
@@ -80,14 +80,15 @@ func ToggleLikeOfReport(token *auth.Token, ID string) (status bool, err error) {
 	}
 
 	if cnt >= LIKE_WHEN_BE_LOCATION {
-		location := ReportDtoToLocation(reportDto)
+		location := reportDtoToLocation(reportDto)
+		makeReportDisable(ID)
 		SaveLocation(location) // todo: error 처리
 	}
 
 	return toggleLike, err
 }
 
-func HandleLikeOfReport(ID string, status bool) (int, error) {
+func handleLikeOfReport(ID string, status bool) (int, error) {
 	reportDto, err := repository.FindReportByID(ID)
 
 	if err != nil {
@@ -110,10 +111,31 @@ func HandleLikeOfReport(ID string, status bool) (int, error) {
 	return reportDto.Report.Like, err
 }
 
-func ReportDtoToLocation(report domain.ReportDto) (location domain.Location) {
+func reportDtoToLocation(report domain.ReportDto) (location domain.Location) {
 	location.Name = report.Report.Name
 	location.LocationType = report.Report.LocationType
 	location.Longitude = report.Report.Longitude
 	location.Latitude = report.Report.Latitude
 	location.Content = report.Report.Content
+
+	return
+}
+
+func makeReportDisable(ID string) error {
+	reportDto, err := repository.FindReportByID(ID)
+
+	if err != nil {
+		log.Printf("error handle like: %v\n", err)
+		return err
+	}
+
+	reportDto.Report.Disabled = true
+
+	_, err = repository.SetReport(ID, reportDto.Report)
+
+	if err != nil {
+		log.Printf("error handle like: %v\n", err)
+	}
+
+	return err
 }

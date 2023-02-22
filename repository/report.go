@@ -99,6 +99,32 @@ func FindReportsByUId(UID string) ([]domain.ReportDto, error) {
 	return reportDtos, nil
 }
 
+func FindReportsExecptDisabled() ([]domain.ReportDto, error) {
+	reportDtos := []domain.ReportDto{}
+	iter := config.GetFirestore().Collection("reports").Where("Disabled", "==", false).Documents(config.Ctx)
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Printf("error find reports by UID: %v\n", err)
+			return reportDtos, err
+		}
+
+		report := domain.ReportDao{}
+		err = mapstructure.Decode(doc.Data(), &report)
+		if err != nil {
+			log.Printf("error find reports by UID: %v\n", err)
+			return reportDtos, err
+		}
+
+		reportDtos = append(reportDtos, domain.ReportDto{ID: doc.Ref.ID, Report: report})
+	}
+
+	return reportDtos, nil
+}
+
 func DelReport(ID string) (*firestore.WriteResult, error) {
 	wr, err := config.GetFirestore().Collection("reports").Doc(ID).Delete(config.Ctx)
 	if err != nil {

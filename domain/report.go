@@ -8,6 +8,7 @@ type ReportDao struct {
 	Longitude    float64
 	Content      string
 	Like         int
+	Disabled     bool
 }
 
 type ReportDto struct {
