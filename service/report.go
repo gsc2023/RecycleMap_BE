@@ -32,7 +32,19 @@ func ModifyReport(ID string, report domain.ReportDao) (*firestore.WriteResult, e
 }
 
 func ToggleLikeOfReport(token *auth.Token, ID string) (status bool, err error) {
-	likes, err := repository.FindLikeByUIDAndLocationID(token.UID, ID)
+	likes, err := repository.FindLikeByUIDAndReportID(token.UID, ID)
+
+	if err != nil {
+		log.Printf("error toggle like: %v\n", err)
+		return false, err
+	}
+
+	_, err = repository.FindReportByID(ID)
+
+	if err != nil {
+		log.Printf("error toggle like: %v\n", err)
+		return false, err
+	}
 
 	if len(likes) == 0 { // 저장 안되어있음
 		like := domain.LikeDao{UID: token.UID, ReportID: ID, Status: true}
@@ -51,11 +63,6 @@ func ToggleLikeOfReport(token *auth.Token, ID string) (status bool, err error) {
 		}
 
 		return true, err
-	}
-
-	if err != nil {
-		log.Printf("error toggle like: %v\n", err)
-		return false, err
 	}
 
 	toggleLike := true

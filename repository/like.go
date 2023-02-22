@@ -63,23 +63,23 @@ func FindLikeByUID(UID string) ([]domain.LikeDto, error) {
 	return likeDtos, nil
 }
 
-func FindLikeByLocationID(LocationID string) ([]domain.LikeDto, error) {
+func FindLikeByReportID(ReportID string) ([]domain.LikeDto, error) {
 	likeDtos := []domain.LikeDto{}
-	iter := config.GetFirestore().Collection("likes").Where("LocationID", "==", LocationID).Documents(config.Ctx)
+	iter := config.GetFirestore().Collection("likes").Where("ReportID", "==", ReportID).Documents(config.Ctx)
 	for {
 		doc, err := iter.Next()
 		if err == iterator.Done {
 			break
 		}
 		if err != nil {
-			log.Printf("error find likes by LocationID: %v\n", err)
+			log.Printf("error find likes by ReportID: %v\n", err)
 			return likeDtos, err
 		}
 
 		like := domain.LikeDao{}
 		err = mapstructure.Decode(doc.Data(), &like)
 		if err != nil {
-			log.Printf("error find likes by LocationID: %v\n", err)
+			log.Printf("error find likes by ReportID: %v\n", err)
 			return likeDtos, err
 		}
 
@@ -89,23 +89,23 @@ func FindLikeByLocationID(LocationID string) ([]domain.LikeDto, error) {
 	return likeDtos, nil
 }
 
-func FindLikeByUIDAndLocationID(UID string, LocationID string) ([]domain.LikeDto, error) {
+func FindLikeByUIDAndReportID(UID string, ReportID string) ([]domain.LikeDto, error) {
 	likeDtos := []domain.LikeDto{}
-	iter := config.GetFirestore().Collection("likes").Where("UID", "==", UID).Where("LocationID", "==", LocationID).Documents(config.Ctx)
+	iter := config.GetFirestore().Collection("likes").Where("UID", "==", UID).Where("ReportID", "==", ReportID).Documents(config.Ctx)
 	for {
 		doc, err := iter.Next()
 		if err == iterator.Done {
 			break
 		}
 		if err != nil {
-			log.Printf("error find likes by UID, LocationID: %v\n", err)
+			log.Printf("error find likes by UID, ReportID: %v\n", err)
 			return likeDtos, err
 		}
 
 		like := domain.LikeDao{}
 		err = mapstructure.Decode(doc.Data(), &like)
 		if err != nil {
-			log.Printf("error find likes by UID, LocationID: %v\n", err)
+			log.Printf("error find likes by UID, ReportID: %v\n", err)
 			return likeDtos, err
 		}
 

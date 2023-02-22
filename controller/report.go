@@ -50,9 +50,9 @@ func getReport(c *gin.Context) {
 }
 
 func addReport(c *gin.Context) {
-	tokenString := c.Request.Header["AccessToken"]
+	tokenString := c.Request.Header.Get("AccessToken")
 
-	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString[0]})
+	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString})
 
 	if err != nil {
 		log.Printf("[controller:report] error addReport : %v\n", err)
@@ -86,9 +86,9 @@ func toggleLikeOfReport(c *gin.Context) {
 		c.JSON(http.StatusNotFound, err)
 	}
 
-	tokenString := c.Request.Header["AccessToken"]
+	tokenString := c.Request.Header.Get("AccessToken")
 
-	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString[0]})
+	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString})
 
 	if err != nil {
 		log.Printf("[controller:report] error toggle like : %v\n", err)
