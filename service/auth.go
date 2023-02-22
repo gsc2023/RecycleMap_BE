@@ -2,6 +2,7 @@ package service
 
 import (
 	"domain"
+	"errors"
 	"log"
 	"module/config"
 
@@ -35,7 +36,13 @@ func SignIn(request domain.SigninRequestDto) (string, error) {
 	return token, err
 }
 
-func VerifyToken(accessToken domain.AccessTokenContainer) (*auth.Token, error) {
+func VerifyToken(accessToken domain.AccessTokenContainer) (*auth.Token, error) { // Test: 현재 UID 그대로 반환
+	token := auth.Token{UID: accessToken.AccessToken}
+
+	return &token, nil
+}
+
+func VerifyToken1(accessToken domain.AccessTokenContainer) (*auth.Token, error) {
 	token, err := config.GetAuth().VerifyIDToken(config.Ctx, accessToken.AccessToken)
 	if err != nil {
 		log.Printf("error verifying ID token: %v\n", err)
@@ -43,4 +50,19 @@ func VerifyToken(accessToken domain.AccessTokenContainer) (*auth.Token, error) {
 
 	log.Printf("Verified ID token: %v\n", token)
 	return token, err
+}
+
+func IsOwner(status bool, err error) error {
+	if err != nil {
+		log.Printf("error owner: %v\n", err)
+		return err
+	}
+
+	if !status {
+		err = errors.New("user is not this owner")
+		log.Printf("error owner: %v\n", err)
+		return err
+	}
+
+	return nil
 }
