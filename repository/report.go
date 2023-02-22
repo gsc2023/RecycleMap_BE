@@ -99,10 +99,10 @@ func FindReportsByUId(UID string) ([]domain.ReportDto, error) {
 	return reportDtos, nil
 }
 
-func DelReport(ID string) error {
-	_, err := config.GetFirestore().Collection("reports").Doc(ID).Delete(config.Ctx)
+func DelReport(ID string) (*firestore.WriteResult, error) {
+	wr, err := config.GetFirestore().Collection("reports").Doc(ID).Delete(config.Ctx)
 	if err != nil {
 		log.Printf("error delete report: %v\n", err)
 	}
-	return err
+	return wr, err
 }

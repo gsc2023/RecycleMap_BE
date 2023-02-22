@@ -114,7 +114,7 @@ func delReport(c *gin.Context) {
 		c.JSON(http.StatusNotFound, err)
 	}
 
-	err = service.DelReport(ID.ID)
+	_, err = service.DelReport(ID.ID)
 
 	if err != nil {
 		log.Printf("[controller:report] error delete Report : %v\n", err)
