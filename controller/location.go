@@ -51,7 +51,19 @@ func getCommentsByLocationId(c *gin.Context) {
 }
 
 func saveCommentToLocation(c *gin.Context) {
-	c.Status(http.StatusOK)
+	locationRef := domain.LocationUrlParameter{}
+	c.ShouldBindUri(&locationRef)
+
+	content := domain.Comment{}.Content
+	uID := domain.Comment{}.UID
+
+	comment :={locationRef, content, uID}
+	err := c.Bind(&content)
+	if err != nil {
+		log.Printf("[controller:location] error saveCommentToLocation : %v\n", err)
+	}
+	ref, _ := service.SaveComment(locationRef.ID, content, uID)
+	c.String(http.StatusOK, ref.ID)
 }
 
 func updateComment(c *gin.Context) {
