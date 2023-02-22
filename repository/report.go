@@ -132,3 +132,14 @@ func DelReport(ID string) (*firestore.WriteResult, error) {
 	}
 	return wr, err
 }
+
+func IsReportOwner(UID string, ID string) (bool, error) {
+	reportDto, err := FindReportByID(ID)
+
+	if err != nil {
+		log.Printf("error owner report: %v\n", err)
+		return false, err
+	}
+
+	return reportDto.Report.UID == UID, err
+}

@@ -114,7 +114,16 @@ func delReport(c *gin.Context) {
 		c.JSON(http.StatusNotFound, err)
 	}
 
-	_, err = service.DelReport(ID.ID)
+	tokenString := c.Request.Header.Get("AccessToken")
+
+	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString})
+
+	if err != nil {
+		log.Printf("[controller:report] error toggle like : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	_, err = service.DelReport(token, ID.ID)
 
 	if err != nil {
 		log.Printf("[controller:report] error delete Report : %v\n", err)
@@ -141,7 +150,16 @@ func modifyReport(c *gin.Context) {
 		c.JSON(http.StatusNotFound, err)
 	}
 
-	_, err = service.ModifyReport(ID.ID, report)
+	tokenString := c.Request.Header.Get("AccessToken")
+
+	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString})
+
+	if err != nil {
+		log.Printf("[controller:report] error toggle like : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	_, err = service.ModifyReport(token, ID.ID, report)
 
 	if err != nil {
 		log.Printf("[controller:report] error modify Report : %v\n", err)

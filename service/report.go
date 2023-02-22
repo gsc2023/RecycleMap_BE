@@ -23,11 +23,25 @@ func JoinReport(token *auth.Token, report domain.ReportDao) (*firestore.Document
 	return repository.SaveReport(token.UID, report)
 }
 
-func DelReport(ID string) (*firestore.WriteResult, error) {
+func DelReport(token *auth.Token, ID string) (*firestore.WriteResult, error) {
+	err := IsOwner(repository.IsReportOwner(token.UID, ID))
+
+	if err != nil {
+		log.Printf("error delete report: %v\n", err)
+		return nil, err
+	}
+
 	return repository.DelReport(ID)
 }
 
-func ModifyReport(ID string, report domain.ReportDao) (*firestore.WriteResult, error) {
+func ModifyReport(token *auth.Token, ID string, report domain.ReportDao) (*firestore.WriteResult, error) {
+	err := IsOwner(repository.IsReportOwner(token.UID, ID))
+
+	if err != nil {
+		log.Printf("error modify report: %v\n", err)
+		return nil, err
+	}
+
 	return repository.SetReport(ID, report)
 }
 

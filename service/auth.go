@@ -2,6 +2,7 @@ package service
 
 import (
 	"domain"
+	"errors"
 	"log"
 	"module/config"
 
@@ -51,6 +52,17 @@ func VerifyToken1(accessToken domain.AccessTokenContainer) (*auth.Token, error) 
 	return token, err
 }
 
-func IsAuthorizationUser(UID string, subject map[string]interface{}) {
+func IsOwner(status bool, err error) error {
+	if err != nil {
+		log.Printf("error owner: %v\n", err)
+		return err
+	}
 
+	if !status {
+		err = errors.New("user is not this owner")
+		log.Printf("error owner: %v\n", err)
+		return err
+	}
+
+	return nil
 }
