@@ -1,18 +1,13 @@
 package domain
 
 type Comment struct {
-	UID        string
-	Content    string
-	LocationID string
+	UserID  string
+	Content string
 }
 
 type CommentDto struct {
 	ID      string
 	Comment Comment
-}
-
-type SaveCommentDto struct {
-	Content string
 }
 
 type CommentUrlParameter struct {

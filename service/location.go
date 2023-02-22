@@ -7,14 +7,14 @@ import (
 	"cloud.google.com/go/firestore"
 )
 
-func FindLocations() ([]domain.LocationDto, error) {
-	return repository.FindAllLocations()
+func FindLocations() (rocationDtos []domain.LocationDto) {
+	return repository.Find()
 }
 
-func FindLocation(ID string) (domain.LocationDto, error) {
-	return repository.FindLocationById(ID)
+func FindLocation(ID string) domain.LocationDto {
+	return repository.FindOne(ID)
 }
 
-func SaveLocation(location domain.Location) (*firestore.DocumentRef, *firestore.WriteResult, error) {
-	return repository.SaveLocation(location)
+func SaveLocation(location domain.Location) (*firestore.DocumentRef, *firestore.WriteResult) {
+	return repository.Save(location)
 }

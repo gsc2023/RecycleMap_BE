@@ -10,8 +10,7 @@ import (
 	"google.golang.org/api/iterator"
 )
 
-func FindAllLocations() ([]domain.LocationDto, error) {
-	locationDtos := []domain.LocationDto{}
+func Find() (locationDtos []domain.LocationDto) {
 	iter := config.GetFirestore().Collection("locations").Documents(config.Ctx)
 	for {
 		doc, err := iter.Next()
@@ -20,23 +19,21 @@ func FindAllLocations() ([]domain.LocationDto, error) {
 		}
 		if err != nil {
 			log.Printf("error find all locations: %v\n", err)
-			return locationDtos, err
 		}
 
 		location := domain.Location{}
 		err = mapstructure.Decode(doc.Data(), &location)
 		if err != nil {
 			log.Printf("error find all locations: %v\n", err)
-			return locationDtos, err
 		}
 
 		locationDtos = append(locationDtos, domain.LocationDto{ID: doc.Ref.ID, Location: location})
 	}
 
-	return locationDtos, nil
+	return
 }
 
-func FindLocationById(ID string) (domain.LocationDto, error) {
+func FindOne(ID string) domain.LocationDto {
 	dsnap, err := config.GetFirestore().Collection("locations").Doc(ID).Get(config.Ctx)
 	if err != nil {
 		log.Printf("error find location by id: %v\n", err)
@@ -48,14 +45,14 @@ func FindLocationById(ID string) (domain.LocationDto, error) {
 		log.Printf("error find location by id: %v\n", err)
 	}
 
-	return domain.LocationDto{ID: ID, Location: location}, err
+	return domain.LocationDto{ID: ID, Location: location}
 }
 
-func SaveLocation(location domain.Location) (*firestore.DocumentRef, *firestore.WriteResult, error) {
+func Save(location domain.Location) (*firestore.DocumentRef, *firestore.WriteResult) {
 	ref, wr, err := config.GetFirestore().Collection("locations").Add(config.Ctx, location)
 	if err != nil {
 		log.Printf("error save location: %v\n", err)
 	}
 
-	return ref, wr, err
+	return ref, wr
 }
