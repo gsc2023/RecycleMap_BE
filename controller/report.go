@@ -20,53 +20,133 @@ func reportRouter(report *gin.RouterGroup) {
 }
 
 func getAllReport(c *gin.Context) {
-	c.JSON(http.StatusOK, service.FindReports())
+	reportDto, err := service.FindReports()
+
+	if err != nil {
+		log.Printf("[controller:report] error get all Report : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	c.JSON(http.StatusOK, reportDto)
 }
 
 func getReport(c *gin.Context) {
 	ID := domain.UriParameter{}
-	c.ShouldBindUri(&ID)
+	err := c.ShouldBindUri(&ID)
 
-	c.JSON(http.StatusOK, service.FindReport(ID.ID))
+	if err != nil {
+		log.Printf("[controller:report] error get Report : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	reportDto, err := service.FindReport(ID.ID)
+
+	if err != nil {
+		log.Printf("[controller:report] error get Report : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	c.JSON(http.StatusOK, reportDto)
 }
 
 func addReport(c *gin.Context) {
-	report := domain.Report{}
-	err := c.Bind(&report)
+	tokenString := c.Request.Header["AccessToken"]
+
+	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString[0]})
 
 	if err != nil {
 		log.Printf("[controller:report] error addReport : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
 	}
 
-	ref, _ := service.Join(report)
+	report := domain.ReportDao{}
+	err = c.Bind(&report)
 
-	c.String(http.StatusOK, ref.ID)
+	if err != nil {
+		log.Printf("[controller:report] error addReport : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	_, _, err = service.JoinReport(token, report)
+
+	if err != nil {
+		log.Printf("[controller:report] error addReport : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	c.Status(http.StatusOK)
 }
 
 func toggleLikeOfReport(c *gin.Context) {
+	ID := domain.UriParameter{}
+	err := c.ShouldBindUri(&ID)
 
+	if err != nil {
+		log.Printf("[controller:report] error toggle like : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	tokenString := c.Request.Header["AccessToken"]
+
+	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString[0]})
+
+	if err != nil {
+		log.Printf("[controller:report] error toggle like : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	status, err := service.ToggleLikeOfReport(token, ID.ID)
+
+	if err != nil {
+		log.Printf("[controller:report] error toggle like : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	c.JSON(http.StatusOK, domain.StatusContainer{Status: status})
 }
 
 func delReport(c *gin.Context) {
 	ID := domain.UriParameter{}
-	c.ShouldBindUri(&ID)
+	err := c.ShouldBindUri(&ID)
 
-	service.DelReport(ID.ID)
+	if err != nil {
+		log.Printf("[controller:report] error delete Report : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	err = service.DelReport(ID.ID)
+
+	if err != nil {
+		log.Printf("[controller:report] error delete Report : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
 
 	c.Status(http.StatusOK)
 }
 
 func modifyReport(c *gin.Context) {
 	ID := domain.UriParameter{}
-	report := domain.Report{}
-	c.ShouldBindUri(&ID)
-	err := c.Bind(&report)
+	report := domain.ReportDao{}
+	err := c.ShouldBindUri(&ID)
 
 	if err != nil {
-		log.Printf("[controller:report] error modifyReport : %v\n", err)
+		log.Printf("[controller:report] error modify Report : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
 	}
 
-	service.ModifyReport(ID.ID, report)
+	err = c.Bind(&report)
+
+	if err != nil {
+		log.Printf("[controller:report] error modify Report : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	_, err = service.ModifyReport(ID.ID, report)
+
+	if err != nil {
+		log.Printf("[controller:report] error modify Report : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
 
 	c.Status(http.StatusOK)
 }

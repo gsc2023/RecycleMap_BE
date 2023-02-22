@@ -1,7 +1,7 @@
 package domain
 
-type Report struct {
-	UserID         string
+type ReportDao struct {
+	UID            string
 	Name           string
 	LocationType   int
 	Latitude       float64
@@ -12,5 +12,5 @@ type Report struct {
 
 type ReportDto struct {
 	ID     string
-	Report Report
+	Report ReportDao
 }
