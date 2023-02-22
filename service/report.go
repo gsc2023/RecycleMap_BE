@@ -28,6 +28,6 @@ func ModifyReport(ID string, report domain.ReportDao) (*firestore.WriteResult, e
 	return repository.SetReport(ID, report)
 }
 
-func ToggleLikeOfReport() {
-
+func ToggleLikeOfReport(token *auth.Token, ID string) (status bool, err error) {
+	return
 }

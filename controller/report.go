@@ -78,7 +78,31 @@ func addReport(c *gin.Context) {
 }
 
 func toggleLikeOfReport(c *gin.Context) {
+	ID := domain.UriParameter{}
+	err := c.ShouldBindUri(&ID)
 
+	if err != nil {
+		log.Printf("[controller:report] error toggle like : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	tokenString := c.Request.Header["AccessToken"]
+
+	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString[0]})
+
+	if err != nil {
+		log.Printf("[controller:report] error toggle like : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	status, err := service.ToggleLikeOfReport(token, ID.ID)
+
+	if err != nil {
+		log.Printf("[controller:report] error toggle like : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	c.JSON(http.StatusOK, domain.StatusContainer{Status: status})
 }
 
 func delReport(c *gin.Context) {
