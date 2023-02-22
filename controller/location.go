@@ -77,16 +77,16 @@ func getCommentsByLocationId(c *gin.Context) {
 }
 
 func saveCommentToLocation(c *gin.Context) {
-	ID := domain.LocationUrlParameter{}
-	err := c.ShouldBindUri(&ID)
+	tokenString := c.Request.Header.Get("AccessToken")
+	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString})
 
 	if err != nil {
 		log.Printf("[controller:location] error saveCommentToLocation : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
-	tokenString := c.Request.Header["AccessToken"]
-	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString[0]})
+	ID := domain.LocationUrlParameter{}
+	err = c.ShouldBindUri(&ID)
 
 	if err != nil {
 		log.Printf("[controller:location] error saveCommentToLocation : %v\n", err)
@@ -101,14 +101,14 @@ func saveCommentToLocation(c *gin.Context) {
 		c.JSON(http.StatusNotFound, err)
 	}
 
-	_, _, err = service.JoinComment(token, ID.ID, comment)
+	ref, _, err := service.JoinComment(token, ID.ID, comment)
 
 	if err != nil {
 		log.Printf("[controller:location] error saveCommentToLocation : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, ref.ID)
 }
 
 func updateComment(c *gin.Context) {
