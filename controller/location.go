@@ -10,8 +10,8 @@ import (
 )
 
 func locationRouter(location *gin.RouterGroup) {
-	location.GET("/", getAll)
-	location.GET("/:locationId", findById)
+	location.GET("/", getAllLocation)
+	location.GET("/:locationId", getLocation)
 	location.POST("/new", saveLocation)
 	location.POST("/:locationId/bookmark", setBookmark)
 	location.GET("/:locationId/comments", getCommentsByLocationId)
@@ -20,28 +20,54 @@ func locationRouter(location *gin.RouterGroup) {
 	location.DELETE("/comments/:commentId", deleteComment)
 }
 
-func getAll(c *gin.Context) {
-	c.JSON(http.StatusOK, service.FindLocations())
+func getAllLocation(c *gin.Context) {
+	locationDto, err := service.FindLocations()
+
+	if err != nil {
+		log.Printf("[controller:location] error getAllLocation : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	c.JSON(http.StatusOK, locationDto)
+
 }
 
-func findById(c *gin.Context) {
+func getLocation(c *gin.Context) {
 	ID := domain.LocationUrlParameter{}
-	c.ShouldBindUri(&ID)
+	err := c.ShouldBindUri(&ID)
 
-	c.JSON(http.StatusOK, service.FindLocation(ID.ID))
+	if err != nil {
+		log.Printf("[controller:location] error getLocation : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	locationDto, err := service.FindLocation(ID.ID)
+
+	if err != nil {
+		log.Printf("[controller:report] error getLocation : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	c.JSON(http.StatusOK, locationDto)
 }
+
 func saveLocation(c *gin.Context) {
 	location := domain.Location{}
 	err := c.Bind(&location)
 
 	if err != nil {
-		log.Printf("[controller:location] error createLocation : %v\n", err)
+		log.Printf("[controller:location] error saveLocation : %v\n", err)
 	}
 
-	ref, _ := service.SaveLocation(location)
+	ref, _, err := service.SaveLocation(location)
 
-	c.String(http.StatusOK, ref.ID)
+	if err != nil {
+		log.Printf("[controller:location] error saveLocation : %v\n", err)
+	}
+
+	c.JSON(http.StatusOK, ref.ID)
 }
+
 func setBookmark(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
@@ -51,7 +77,38 @@ func getCommentsByLocationId(c *gin.Context) {
 }
 
 func saveCommentToLocation(c *gin.Context) {
-	c.Status(http.StatusOK)
+	tokenString := c.Request.Header.Get("AccessToken")
+	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString})
+
+	if err != nil {
+		log.Printf("[controller:location] error saveCommentToLocation : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	ID := domain.LocationUrlParameter{}
+	err = c.ShouldBindUri(&ID)
+
+	if err != nil {
+		log.Printf("[controller:location] error saveCommentToLocation : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	comment := domain.Comment{}
+	err = c.Bind(&comment)
+
+	if err != nil {
+		log.Printf("[controller:location] error saveCommentToLocation : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	ref, _, err := service.JoinComment(token, ID.ID, comment)
+
+	if err != nil {
+		log.Printf("[controller:location] error saveCommentToLocation : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	c.JSON(http.StatusOK, ref.ID)
 }
 
 func updateComment(c *gin.Context) {
