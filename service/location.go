@@ -21,3 +21,7 @@ func FindLocationsByType(LocationType int) ([]domain.LocationDto, error) {
 func SaveLocation(location domain.Location) (*firestore.DocumentRef, *firestore.WriteResult, error) {
 	return repository.SaveLocation(location)
 }
+
+func FindAroundLocations(location domain.MyLocation) ([]domain.LocationDto, error) {
+	return repository.FindAllLocationsByPosition(location.Latitude, location.Longitude)
+}
