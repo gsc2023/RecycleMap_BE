@@ -12,6 +12,7 @@ import (
 func userRouter(user *gin.RouterGroup) {
 	user.GET("/comments", getAllMyLocation)
 	user.PATCH("/comments/:commentId", modifyComment)
+	user.DELETE("/comments/:commentId", delComment)
 }
 
 func getAllMyLocation(c *gin.Context) {
@@ -64,18 +65,27 @@ func modifyComment(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-/*
-user.DELETE("/comments/:commentId", deleteComment)
-
-func deleteComment(c *gin.Context) {
+func delComment(c *gin.Context) {
 	tokenString := c.Request.Header.Get("AccessToken")
 	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString})
-
 	if err != nil {
 		log.Printf("[controller:user] error delete my comment : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
+	ID := domain.CommentUrlParameter{}
+	err = c.ShouldBindUri(&ID)
+	if err != nil {
+		log.Printf("[controller:user] error delete my comment : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	_, err = service.DeleteComment(token, ID.ID)
+
+	if err != nil {
+		log.Printf("[controller:report] error delete Report : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
 	c.Status(http.StatusOK)
 }
-*/

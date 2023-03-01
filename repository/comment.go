@@ -110,3 +110,11 @@ func SetComment(ID string, newComment domain.Comment) (*firestore.WriteResult, e
 
 	return wr, err
 }
+
+func DeleteComment(ID string) (*firestore.WriteResult, error) {
+	wr, err := config.GetFirestore().Collection("comments").Doc(ID).Delete(config.Ctx)
+	if err != nil {
+		log.Printf("error delete comment: %v\n", err)
+	}
+	return wr, err
+}

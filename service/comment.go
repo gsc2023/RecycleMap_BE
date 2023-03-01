@@ -39,3 +39,14 @@ func ModifyComment(token *auth.Token, ID string, newComment domain.Comment) (*fi
 
 	return repository.SetComment(ID, newComment)
 }
+
+func DeleteComment(token *auth.Token, ID string) (*firestore.WriteResult, error) {
+	err := IsOwner(repository.IsCommentOwner(token.UID, ID))
+
+	if err != nil {
+		log.Printf("error delete comment: %v\n", err)
+		return nil, err
+	}
+
+	return repository.DeleteComment(ID)
+}
