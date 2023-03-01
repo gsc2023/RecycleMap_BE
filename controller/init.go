@@ -6,4 +6,5 @@ func InitRouter(router *gin.Engine) {
 	reportRouter(router.Group("/reports"))
 	authRouter(router.Group("/auth"))
 	locationRouter(router.Group("/locations"))
+	userRouter(router.Group("/my"))
 }

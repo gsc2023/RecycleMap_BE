@@ -6,7 +6,6 @@ type Location struct {
 	Latitude     float64
 	Longitude    float64
 	Content      string
-	CommentID    string
 }
 
 type LocationDto struct {
@@ -16,4 +15,8 @@ type LocationDto struct {
 
 type LocationUrlParameter struct {
 	ID string `uri:"locationId"`
+}
+
+type LocationTypeUrlParameter struct {
+	LocationType int `uri:"locationType"`
 }

@@ -51,6 +51,32 @@ func FindLocationById(ID string) (domain.LocationDto, error) {
 	return domain.LocationDto{ID: ID, Location: location}, err
 }
 
+func FindAllLocationsByType(LocationType int) ([]domain.LocationDto, error) {
+	locationDtos := []domain.LocationDto{}
+	iter := config.GetFirestore().Collection("locations").Where("LocationType", "==", LocationType).Documents(config.Ctx)
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Printf("error find all locations by type: %v\n", err)
+			return locationDtos, err
+		}
+
+		location := domain.Location{}
+		err = mapstructure.Decode(doc.Data(), &location)
+		if err != nil {
+			log.Printf("error find all locations by type: %v\n", err)
+			return locationDtos, err
+		}
+
+		locationDtos = append(locationDtos, domain.LocationDto{ID: doc.Ref.ID, Location: location})
+	}
+
+	return locationDtos, nil
+}
+
 func SaveLocation(location domain.Location) (*firestore.DocumentRef, *firestore.WriteResult, error) {
 	ref, wr, err := config.GetFirestore().Collection("locations").Add(config.Ctx, location)
 	if err != nil {
