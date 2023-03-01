@@ -8,6 +8,10 @@ type Location struct {
 	Content      string
 }
 
+type MyLocation struct {
+	Latitude  float64
+	Longitude float64
+}
 type LocationDto struct {
 	ID       string
 	Location Location

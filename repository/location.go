@@ -85,3 +85,40 @@ func SaveLocation(location domain.Location) (*firestore.DocumentRef, *firestore.
 
 	return ref, wr, err
 }
+
+func FindAllLocationsByPosition(latitude float64, longitude float64) ([]domain.LocationDto, error) {
+	log.Println(latitude, longitude)
+	locationDtos := []domain.LocationDto{}
+
+	distance := float64(0.0003)
+	MaxLat := latitude + distance
+	MinLat := latitude - distance
+	MaxLong := longitude + distance
+	MinLong := longitude - distance
+	log.Println(MaxLat, MinLat, MaxLong, MinLong)
+	iter := config.GetFirestore().Collection("locations").Where("Latitude", "<=", MaxLat).Where("Latitude", ">=", MinLat).Documents(config.Ctx)
+	iter = config.GetFirestore().Collection("locations").Where("Longitude", ">=", MinLong).Where("Longitude", "<=", MaxLong).Documents(config.Ctx)
+	//iter = config.GetFirestore().Collection("locations").Where("Latitude", "<=", MaxLat).Where("Latitude", ">=", MinLat).Where("Longitude", ">=", MinLong).Where("Longitude", "<=", MaxLong).Documents(config.Ctx)
+	log.Println(iter)
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Printf("error find all locations by position: %v\n", err)
+			return locationDtos, err
+		}
+
+		location := domain.Location{}
+		err = mapstructure.Decode(doc.Data(), &location)
+		if err != nil {
+			log.Printf("error find all locations by position: %v\n", err)
+			return locationDtos, err
+		}
+
+		locationDtos = append(locationDtos, domain.LocationDto{ID: doc.Ref.ID, Location: location})
+
+	}
+	return locationDtos, nil
+}
