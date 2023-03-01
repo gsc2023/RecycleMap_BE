@@ -16,6 +16,8 @@ func userRouter(user *gin.RouterGroup) {
 	user.GET("/report", getMyReport)
 	user.DELETE("/report/:ID", delReport)
 	user.PATCH("/report/:ID", modifyReport)
+	user.GET("/like", getMyLikePlace)
+	user.PATCH("/edit", editUser)
 
 }
 
@@ -67,14 +69,14 @@ func getMyReport(c *gin.Context) {
 	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString})
 
 	if err != nil {
-		log.Printf("[controller:report] error get my report : %v\n", err)
+		log.Printf("[controller:my] error get my report : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
 	reportDtos, err := service.FindMyReport(token)
 
 	if err != nil {
-		log.Printf("[controller:report] error get my report : %v\n", err)
+		log.Printf("[controller:my] error get my report : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
@@ -86,7 +88,7 @@ func delReport(c *gin.Context) {
 	err := c.ShouldBindUri(&ID)
 
 	if err != nil {
-		log.Printf("[controller:report] error delete Report : %v\n", err)
+		log.Printf("[controller:my] error delete Report : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
@@ -95,14 +97,14 @@ func delReport(c *gin.Context) {
 	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString})
 
 	if err != nil {
-		log.Printf("[controller:report] error delete Report : %v\n", err)
+		log.Printf("[controller:my] error delete Report : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
 	_, err = service.DelReport(token, ID.ID)
 
 	if err != nil {
-		log.Printf("[controller:report] error delete Report : %v\n", err)
+		log.Printf("[controller:my] error delete Report : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
@@ -115,14 +117,14 @@ func modifyReport(c *gin.Context) {
 	err := c.ShouldBindUri(&ID)
 
 	if err != nil {
-		log.Printf("[controller:report] error modify Report : %v\n", err)
+		log.Printf("[controller:my] error modify Report : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
 	err = c.Bind(&report)
 
 	if err != nil {
-		log.Printf("[controller:report] error modify Report : %v\n", err)
+		log.Printf("[controller:my] error modify Report : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
@@ -131,16 +133,76 @@ func modifyReport(c *gin.Context) {
 	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString})
 
 	if err != nil {
-		log.Printf("[controller:report] error modify Report : %v\n", err)
+		log.Printf("[controller:my] error modify Report : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
 	_, err = service.ModifyReport(token, ID.ID, report)
 
 	if err != nil {
-		log.Printf("[controller:report] error modify Report : %v\n", err)
+		log.Printf("[controller:my] error modify Report : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
 	c.Status(http.StatusOK)
+}
+
+func getMyLikePlace(c *gin.Context) {
+	tokenString := c.Request.Header.Get("AccessToken")
+
+	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString})
+
+	if err != nil {
+		log.Printf("[controller:my] error modify Report : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	likeDtos, err := service.FindMyLikeReport(token)
+
+	if err != nil {
+		log.Printf("[controller:my] error modify Report : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	var reportDtos []domain.ReportDto
+
+	for _, val := range likeDtos {
+		reportDto, err := service.FindReport(val.Like.ReportID)
+
+		if err != nil {
+			log.Printf("[controller:my] error modify Report : %v\n", err)
+			c.JSON(http.StatusNotFound, err)
+		}
+
+		reportDtos = append(reportDtos, reportDto)
+	}
+
+	c.JSON(http.StatusOK, reportDtos)
+}
+
+func editUser(c *gin.Context) {
+	user := domain.User{}
+
+	if err := c.Bind(&user); err != nil {
+		log.Printf("[controller:user] error edit user : %v\n", err)
+		c.String(http.StatusBadRequest, err.Error())
+	}
+
+	tokenString := c.Request.Header.Get("AccessToken")
+
+	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString})
+
+	if err != nil {
+		log.Printf("[controller:my] error edit user : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	userRecord, err := service.UpdateUser(token, user)
+
+	if err != nil {
+		log.Printf("[controller:user] error edit user : %v\n", err)
+		c.String(http.StatusBadRequest, err.Error())
+	}
+
+	c.JSON(http.StatusOK, userRecord)
 }

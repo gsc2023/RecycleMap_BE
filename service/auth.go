@@ -21,8 +21,27 @@ func JoinUser(user domain.User) (*auth.UserRecord, error) {
 	u, err := config.GetAuth().CreateUser(config.Ctx, params)
 	if err != nil {
 		log.Printf("error creating user: %v\n", err)
+		return u, err
 	}
 	log.Printf("Successfully created user: %v\n", u)
+	return u, err
+}
+
+func UpdateUser(token *auth.Token, user domain.User) (*auth.UserRecord, error) {
+	params := (&auth.UserToUpdate{}).
+		Email(user.Email).
+		EmailVerified(user.EmailVerified).
+		PhoneNumber(user.PhoneNumber).
+		Password(user.Password).
+		DisplayName(user.DisplayName).
+		PhotoURL(user.PhotoURL).
+		Disabled(user.Disabled)
+	u, err := config.GetAuth().UpdateUser(config.Ctx, token.UID, params)
+	if err != nil {
+		log.Printf("error updating user: %v\n", err)
+		return u, err
+	}
+	log.Printf("Successfully updated user: %v\n", u)
 	return u, err
 }
 
