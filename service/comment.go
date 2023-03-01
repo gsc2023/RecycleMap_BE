@@ -15,3 +15,7 @@ func JoinComment(token *auth.Token, ID string, comment domain.Comment) (*firesto
 func FindCommentsById(ID string) ([]domain.CommentDto, error) {
 	return repository.FindAllCommentsById(ID)
 }
+
+func FindCommentsByUID(token *auth.Token) ([]domain.CommentDto, error) {
+	return repository.FindAllcommentsByUID(token.UID)
+}
