@@ -11,8 +11,7 @@ import (
 
 func userRouter(user *gin.RouterGroup) {
 	user.GET("/comments", getAllMyLocation)
-	user.PATCH("/comments/:commentId", updateComment)
-	user.DELETE("/comments/:commentId", deleteComment)
+	user.PATCH("/comments/:commentId", modifyComment)
 }
 
 func getAllMyLocation(c *gin.Context) {
@@ -33,9 +32,29 @@ func getAllMyLocation(c *gin.Context) {
 	c.JSON(http.StatusOK, commentDto)
 }
 
-func updateComment(c *gin.Context) {
+func modifyComment(c *gin.Context) {
 	tokenString := c.Request.Header.Get("AccessToken")
 	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString})
+	if err != nil {
+		log.Printf("[controller:user] error update my comment : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	ID := domain.CommentUrlParameter{}
+	err = c.ShouldBindUri(&ID)
+	if err != nil {
+		log.Printf("[controller:user] error update my comment : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	comment := domain.Comment{}
+	err = c.Bind(&comment)
+	if err != nil {
+		log.Printf("[controller:user] error update my comment : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	_, err = service.ModifyComment(token, ID.ID, comment)
 
 	if err != nil {
 		log.Printf("[controller:user] error update my comment : %v\n", err)
@@ -44,6 +63,9 @@ func updateComment(c *gin.Context) {
 
 	c.Status(http.StatusOK)
 }
+
+/*
+user.DELETE("/comments/:commentId", deleteComment)
 
 func deleteComment(c *gin.Context) {
 	tokenString := c.Request.Header.Get("AccessToken")
@@ -56,3 +78,4 @@ func deleteComment(c *gin.Context) {
 
 	c.Status(http.StatusOK)
 }
+*/
