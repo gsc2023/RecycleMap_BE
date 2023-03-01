@@ -13,6 +13,7 @@ func locationRouter(location *gin.RouterGroup) {
 	location.GET("/", getAllLocation)
 	location.GET("/:locationId", getLocation)
 	location.POST("/new", saveLocation)
+	location.GET("/find/:locationType", getAllLocationByType)
 	location.POST("/:locationId/bookmark", setBookmark)
 	location.GET("/:locationId/comments", getCommentsByLocationId)
 	location.POST("/:locationId/comments", saveCommentToLocation)
@@ -24,7 +25,7 @@ func getAllLocation(c *gin.Context) {
 	locationDto, err := service.FindLocations()
 
 	if err != nil {
-		log.Printf("[controller:location] error getAllLocation : %v\n", err)
+		log.Printf("[controller:location] error get locations : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
@@ -37,14 +38,33 @@ func getLocation(c *gin.Context) {
 	err := c.ShouldBindUri(&ID)
 
 	if err != nil {
-		log.Printf("[controller:location] error getLocation : %v\n", err)
+		log.Printf("[controller:location] error get location : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
-	locationDto, err := service.FindLocation(ID.ID)
+	locationDto, err := service.FindLocationById(ID.ID)
 
 	if err != nil {
-		log.Printf("[controller:report] error getLocation : %v\n", err)
+		log.Printf("[controller:report] error get location : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	c.JSON(http.StatusOK, locationDto)
+}
+
+func getAllLocationByType(c *gin.Context) {
+	Type := domain.LocationTypeUrlParameter{}
+	err := c.ShouldBindUri(&Type)
+
+	if err != nil {
+		log.Printf("[controller:location] error get locations by type : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	locationDto, err := service.FindLocationsByType(Type.LocationType)
+
+	if err != nil {
+		log.Printf("[controller:location] error get locations by type : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
@@ -81,7 +101,7 @@ func saveCommentToLocation(c *gin.Context) {
 	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString})
 
 	if err != nil {
-		log.Printf("[controller:location] error saveCommentToLocation : %v\n", err)
+		log.Printf("[controller:location] error save comment to location : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
@@ -89,7 +109,7 @@ func saveCommentToLocation(c *gin.Context) {
 	err = c.ShouldBindUri(&ID)
 
 	if err != nil {
-		log.Printf("[controller:location] error saveCommentToLocation : %v\n", err)
+		log.Printf("[controller:location] error save comment to location : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
@@ -97,14 +117,14 @@ func saveCommentToLocation(c *gin.Context) {
 	err = c.Bind(&comment)
 
 	if err != nil {
-		log.Printf("[controller:location] error saveCommentToLocation : %v\n", err)
+		log.Printf("[controller:location] error save comment to location : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
 	_, _, err = service.JoinComment(token, ID.ID, comment)
 
 	if err != nil {
-		log.Printf("[controller:location] error saveCommentToLocation : %v\n", err)
+		log.Printf("[controller:location] error save comment to location : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
