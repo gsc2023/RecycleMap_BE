@@ -56,16 +56,16 @@ func saveLocation(c *gin.Context) {
 	err := c.Bind(&location)
 
 	if err != nil {
-		log.Printf("[controller:location] error saveLocation : %v\n", err)
+		log.Printf("controller:location] error save location : %v\n", err)
 	}
 
-	ref, _, err := service.SaveLocation(location)
+	_, _, err = service.SaveLocation(location)
 
 	if err != nil {
-		log.Printf("[controller:location] error saveLocation : %v\n", err)
+		log.Printf("controller:location] error save location : %v\n", err)
 	}
 
-	c.JSON(http.StatusOK, ref.ID)
+	c.Status(http.StatusOK)
 }
 
 func setBookmark(c *gin.Context) {
@@ -101,14 +101,14 @@ func saveCommentToLocation(c *gin.Context) {
 		c.JSON(http.StatusNotFound, err)
 	}
 
-	ref, _, err := service.JoinComment(token, ID.ID, comment)
+	_, _, err = service.JoinComment(token, ID.ID, comment)
 
 	if err != nil {
 		log.Printf("[controller:location] error saveCommentToLocation : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
-	c.JSON(http.StatusOK, ref.ID)
+	c.Status(http.StatusOK)
 }
 
 func updateComment(c *gin.Context) {

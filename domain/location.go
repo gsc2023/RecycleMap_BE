@@ -6,7 +6,6 @@ type Location struct {
 	Latitude     float64
 	Longitude    float64
 	Content      string
-	CommentID    string
 }
 
 type LocationDto struct {
