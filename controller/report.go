@@ -15,8 +15,6 @@ func reportRouter(report *gin.RouterGroup) {
 	report.GET("/:ID", getReport)
 	report.POST("/new", addReport)
 	report.POST("/:ID/like", toggleLikeOfReport)
-	report.DELETE("/:ID", delReport)
-	report.PATCH("/:ID", modifyReport)
 }
 
 func getAllReport(c *gin.Context) {
@@ -58,6 +56,8 @@ func addReport(c *gin.Context) {
 		log.Printf("[controller:report] error addReport : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
+
+	log.Println(token)
 
 	report := domain.ReportDao{}
 	err = c.Bind(&report)
@@ -103,68 +103,4 @@ func toggleLikeOfReport(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, domain.StatusContainer{Status: status})
-}
-
-func delReport(c *gin.Context) {
-	ID := domain.UriParameter{}
-	err := c.ShouldBindUri(&ID)
-
-	if err != nil {
-		log.Printf("[controller:report] error delete Report : %v\n", err)
-		c.JSON(http.StatusNotFound, err)
-	}
-
-	tokenString := c.Request.Header.Get("AccessToken")
-
-	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString})
-
-	if err != nil {
-		log.Printf("[controller:report] error toggle like : %v\n", err)
-		c.JSON(http.StatusNotFound, err)
-	}
-
-	_, err = service.DelReport(token, ID.ID)
-
-	if err != nil {
-		log.Printf("[controller:report] error delete Report : %v\n", err)
-		c.JSON(http.StatusNotFound, err)
-	}
-
-	c.Status(http.StatusOK)
-}
-
-func modifyReport(c *gin.Context) {
-	ID := domain.UriParameter{}
-	report := domain.ReportDao{}
-	err := c.ShouldBindUri(&ID)
-
-	if err != nil {
-		log.Printf("[controller:report] error modify Report : %v\n", err)
-		c.JSON(http.StatusNotFound, err)
-	}
-
-	err = c.Bind(&report)
-
-	if err != nil {
-		log.Printf("[controller:report] error modify Report : %v\n", err)
-		c.JSON(http.StatusNotFound, err)
-	}
-
-	tokenString := c.Request.Header.Get("AccessToken")
-
-	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString})
-
-	if err != nil {
-		log.Printf("[controller:report] error toggle like : %v\n", err)
-		c.JSON(http.StatusNotFound, err)
-	}
-
-	_, err = service.ModifyReport(token, ID.ID, report)
-
-	if err != nil {
-		log.Printf("[controller:report] error modify Report : %v\n", err)
-		c.JSON(http.StatusNotFound, err)
-	}
-
-	c.Status(http.StatusOK)
 }

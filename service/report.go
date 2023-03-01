@@ -19,6 +19,10 @@ func FindReport(ID string) (domain.ReportDto, error) {
 	return repository.FindReportByID(ID)
 }
 
+func FindMyReport(token *auth.Token) ([]domain.ReportDto, error) {
+	return repository.FindReportsByUId(token.UID)
+}
+
 func JoinReport(token *auth.Token, report domain.ReportDao) (*firestore.DocumentRef, *firestore.WriteResult, error) {
 	return repository.SaveReport(token.UID, report)
 }
