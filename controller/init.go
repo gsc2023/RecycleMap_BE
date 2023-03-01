@@ -7,4 +7,5 @@ func InitRouter(router *gin.Engine) {
 	authRouter(router.Group("/auth"))
 	locationRouter(router.Group("/locations"))
 	userRouter(router.Group("/my"))
+	bookmarkRouter(router.Group("/bookmarks"))
 }

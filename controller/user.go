@@ -18,7 +18,26 @@ func userRouter(user *gin.RouterGroup) {
 	user.PATCH("/report/:ID", modifyReport)
 	user.GET("/like", getMyLikePlace)
 	user.PATCH("/edit", editUser)
+	user.GET("/bookmark", getMyBookmark)
+}
 
+func getMyBookmark(c *gin.Context) {
+	tokenString := c.Request.Header.Get("AccessToken")
+	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString})
+
+	if err != nil {
+		log.Printf("[controller:user] error get my bookmark : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	bookmarkDtos, err := service.FindMyBookmark(token)
+
+	if err != nil {
+		log.Printf("[controller:user] error get my bookmark : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	c.JSON(http.StatusOK, bookmarkDtos)
 }
 
 func getAllMyLocation(c *gin.Context) {
