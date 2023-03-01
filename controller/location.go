@@ -15,7 +15,7 @@ func locationRouter(location *gin.RouterGroup) {
 	location.POST("/new", saveLocation)
 	location.GET("/find/:locationType", getAllLocationByType)
 	location.POST("/:locationId/bookmark", setBookmark)
-	location.GET("/:locationId/comments", getCommentsByLocationId)
+	location.GET("/:locationId/comments", getAllCommentByLocationId)
 	location.POST("/:locationId/comments", saveCommentToLocation)
 	location.PATCH("/comments/:commentId", updateComment)
 	location.DELETE("/comments/:commentId", deleteComment)
@@ -92,8 +92,23 @@ func setBookmark(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func getCommentsByLocationId(c *gin.Context) {
-	c.Status(http.StatusOK)
+func getAllCommentByLocationId(c *gin.Context) {
+	ID := domain.LocationUrlParameter{}
+	err := c.ShouldBindUri(&ID)
+
+	if err != nil {
+		log.Printf("[controller:location] error get comment by locationId : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	commentDto, err := service.FindCommentsById(ID.ID)
+
+	if err != nil {
+		log.Printf("[controller:location] error get comment by locationId : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	c.JSON(http.StatusOK, commentDto)
 }
 
 func saveCommentToLocation(c *gin.Context) {
