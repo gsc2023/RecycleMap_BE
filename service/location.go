@@ -11,8 +11,11 @@ func FindLocations() ([]domain.LocationDto, error) {
 	return repository.FindAllLocations()
 }
 
-func FindLocation(ID string) (domain.LocationDto, error) {
+func FindLocationById(ID string) (domain.LocationDto, error) {
 	return repository.FindLocationById(ID)
+}
+func FindLocationsByType(LocationType int) ([]domain.LocationDto, error) {
+	return repository.FindAllLocationsByType(LocationType)
 }
 
 func SaveLocation(location domain.Location) (*firestore.DocumentRef, *firestore.WriteResult, error) {

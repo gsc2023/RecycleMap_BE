@@ -16,3 +16,7 @@ type LocationDto struct {
 type LocationUrlParameter struct {
 	ID string `uri:"locationId"`
 }
+
+type LocationTypeUrlParameter struct {
+	LocationType int `uri:"locationType"`
+}
