@@ -146,10 +146,10 @@ func saveCommentToLocation(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-// func updateComment(c *gin.Context) {
-// 	c.Status(http.StatusOK)
-// }
+func updateComment(c *gin.Context) {
+	c.Status(http.StatusOK)
+}
 
-// func deleteComment(c *gin.Context) {
-// 	c.Status(http.StatusOK)
-// }
+func deleteComment(c *gin.Context) {
+	c.Status(http.StatusOK)
+}

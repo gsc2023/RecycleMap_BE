@@ -72,3 +72,49 @@ func FindAllcommentsByUID(UID string) ([]domain.CommentDto, error) {
 
 	return commentDtos, nil
 }
+
+func IsCommentOwner(UID string, ID string) (bool, error) {
+	commentDto, err := FindCommentById(ID)
+
+	if err != nil {
+		log.Printf("error owner comment: %v\n", err)
+		return false, err
+	}
+
+	return commentDto.Comment.UID == UID, err
+}
+
+func FindCommentById(ID string) (domain.CommentDto, error) {
+	comment := domain.Comment{}
+
+	dsnap, err := config.GetFirestore().Collection("comments").Doc(ID).Get(config.Ctx)
+	if err != nil {
+		log.Printf("error find comment by id: %v\n", err)
+		return domain.CommentDto{ID: ID, Comment: comment}, err
+	}
+
+	err = mapstructure.Decode(dsnap.Data(), &comment)
+	if err != nil {
+		log.Printf("error find comment by id: %v\n", err)
+		return domain.CommentDto{ID: ID, Comment: comment}, err
+	}
+
+	return domain.CommentDto{ID: ID, Comment: comment}, err
+}
+
+func SetComment(ID string, newComment domain.Comment) (*firestore.WriteResult, error) {
+	wr, err := config.GetFirestore().Collection("comments").Doc(ID).Set(config.Ctx, newComment)
+	if err != nil {
+		log.Printf("error set comment: %v\n", err)
+	}
+
+	return wr, err
+}
+
+func DeleteComment(ID string) (*firestore.WriteResult, error) {
+	wr, err := config.GetFirestore().Collection("comments").Doc(ID).Delete(config.Ctx)
+	if err != nil {
+		log.Printf("error delete comment: %v\n", err)
+	}
+	return wr, err
+}
