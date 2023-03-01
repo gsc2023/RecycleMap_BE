@@ -55,6 +55,14 @@ func SignIn(request domain.SigninRequestDto) (string, error) {
 	return token, err
 }
 
+func getUser(UID string) (*auth.UserRecord, error) {
+	u, err := config.GetAuth().GetUser(config.Ctx, UID)
+	if err != nil {
+		log.Fatalf("error getting user %s: %v\n", UID, err)
+	}
+	return u, err
+}
+
 func VerifyToken1(accessToken domain.AccessTokenContainer) (*auth.Token, error) { // Test: 현재 UID 그대로 반환
 	token := auth.Token{UID: accessToken.AccessToken}
 
