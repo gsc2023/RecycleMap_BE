@@ -7,6 +7,7 @@ import (
 	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/auth"
+	"firebase.google.com/go/storage"
 	"google.golang.org/api/option"
 )
 
@@ -18,7 +19,11 @@ func initializeAppWithServiceAccount() *firebase.App {
 
 	sa := option.WithCredentialsFile("module/config/serviceAccountKey.json")
 
-	app, err := firebase.NewApp(Ctx, nil, sa)
+	config := &firebase.Config{
+		StorageBucket: "solutionchallenge2023.appspot.com",
+	}
+
+	app, err := firebase.NewApp(Ctx, config, sa)
 	if err != nil {
 		log.Fatalf("error initializing app: %v\n", err)
 	}
@@ -39,6 +44,16 @@ func GetFirestore() *firestore.Client {
 
 func GetAuth() *auth.Client {
 	client, err := App.Auth(Ctx)
+	if err != nil {
+		log.Println("firestore")
+		log.Fatalln(err)
+	}
+
+	return client
+}
+
+func GetStorage() *storage.Client {
+	client, err := App.Storage(Ctx)
 	if err != nil {
 		log.Println("firestore")
 		log.Fatalln(err)
