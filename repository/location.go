@@ -10,6 +10,8 @@ import (
 	"google.golang.org/api/iterator"
 )
 
+const DISTANCE_FROM_MY_LOCATION = float64(0.0003)
+
 func FindAllLocations() ([]domain.LocationDto, error) {
 	locationDtos := []domain.LocationDto{}
 	iter := config.GetFirestore().Collection("locations").Documents(config.Ctx)
@@ -90,7 +92,7 @@ func FindAllLocationsByPosition(latitude float64, longitude float64) ([]domain.L
 	log.Println(latitude, longitude)
 	locationDtos := []domain.LocationDto{}
 
-	distance := float64(0.0003)
+	distance := DISTANCE_FROM_MY_LOCATION
 	MaxLat := latitude + distance
 	MinLat := latitude - distance
 	MaxLong := longitude + distance
