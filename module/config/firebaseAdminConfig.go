@@ -55,7 +55,7 @@ func GetAuth() *auth.Client {
 func GetStorage() *storage.Client {
 	client, err := App.Storage(Ctx)
 	if err != nil {
-		log.Println("firestore")
+		log.Println("storage")
 		log.Fatalln(err)
 	}
 
