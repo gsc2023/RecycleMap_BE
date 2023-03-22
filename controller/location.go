@@ -17,7 +17,7 @@ func locationRouter(location *gin.RouterGroup) {
 	location.POST("/:locationId/bookmark", setBookmark)
 	location.GET("/:locationId/comments", getAllCommentByLocationId)
 	location.POST("/:locationId/comments", saveCommentToLocation)
-	location.GET("/around", getAroundLocation)
+	location.POST("/around", getAroundLocation)
 }
 
 func getAllLocation(c *gin.Context) {
