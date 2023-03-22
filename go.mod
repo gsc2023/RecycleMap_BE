@@ -3,6 +3,7 @@ module main
 go 1.20
 
 require (
+	github.com/blackjack/webcam v0.0.0-20220329180758-ba064708e165 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.8.2 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
