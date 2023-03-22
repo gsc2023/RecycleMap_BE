@@ -17,8 +17,7 @@ func locationRouter(location *gin.RouterGroup) {
 	location.POST("/:locationId/bookmark", setBookmark)
 	location.GET("/:locationId/comments", getAllCommentByLocationId)
 	location.POST("/:locationId/comments", saveCommentToLocation)
-	location.PATCH("/comments/:commentId", updateComment)
-	location.DELETE("/comments/:commentId", deleteComment)
+	location.POST("/around", getAroundLocation)
 }
 
 func getAllLocation(c *gin.Context) {
@@ -71,18 +70,38 @@ func getAllLocationByType(c *gin.Context) {
 	c.JSON(http.StatusOK, locationDto)
 }
 
+func getAroundLocation(c *gin.Context) {
+	location := domain.MyLocation{}
+	err := c.ShouldBindJSON(&location)
+
+	if err != nil {
+		log.Printf("controller:location] error get around location : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	locationDto, err := service.FindAroundLocations(location)
+	if err != nil {
+		log.Printf("controller:location] error get around location : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	c.JSON(http.StatusOK, locationDto)
+}
+
 func saveLocation(c *gin.Context) {
 	location := domain.Location{}
 	err := c.Bind(&location)
 
 	if err != nil {
 		log.Printf("controller:location] error save location : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
 	}
 
 	_, _, err = service.SaveLocation(location)
 
 	if err != nil {
 		log.Printf("controller:location] error save location : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
 	}
 
 	c.Status(http.StatusOK)
@@ -97,7 +116,7 @@ func getAllCommentByLocationId(c *gin.Context) {
 	err := c.ShouldBindUri(&ID)
 
 	if err != nil {
-		log.Printf("[controller:location] error get comment by locationId : %v\n", err)
+		log.Printf("[controller:location] error get comments by locationId : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
@@ -143,13 +162,5 @@ func saveCommentToLocation(c *gin.Context) {
 		c.JSON(http.StatusNotFound, err)
 	}
 
-	c.Status(http.StatusOK)
-}
-
-func updateComment(c *gin.Context) {
-	c.Status(http.StatusOK)
-}
-
-func deleteComment(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
