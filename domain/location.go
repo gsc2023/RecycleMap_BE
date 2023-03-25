@@ -6,6 +6,7 @@ type Location struct {
 	Latitude     float64
 	Longitude    float64
 	Content      string
+	ImagePath    string
 }
 
 type MyLocation struct {

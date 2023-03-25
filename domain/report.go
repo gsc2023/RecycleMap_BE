@@ -9,9 +9,17 @@ type ReportDao struct {
 	Content      string
 	Like         int
 	Disabled     bool
+	ImagePath    string
+	Date         int
 }
 
 type ReportDto struct {
 	ID     string
 	Report ReportDao
+}
+
+type ReportDtoWithUser struct {
+	ID     string
+	Report ReportDao
+	User   User
 }

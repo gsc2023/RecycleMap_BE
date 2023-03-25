@@ -2,7 +2,10 @@ package service
 
 import (
 	"domain"
+	"io"
 	"log"
+	"mime/multipart"
+	"module/config"
 	"repository"
 
 	"cloud.google.com/go/firestore"
@@ -11,8 +14,44 @@ import (
 
 const LIKE_WHEN_BE_LOCATION = 50
 
-func FindReports() ([]domain.ReportDto, error) {
-	return repository.FindReportsExecptDisabled()
+func FindReports() ([]domain.ReportDtoWithUser, error) {
+	reportDtos, err := repository.FindReportsExecptDisabled()
+
+	var reportDtoWithUsers []domain.ReportDtoWithUser
+
+	if err != nil {
+		log.Printf("error find reports: %v\n", err)
+		return nil, err
+	}
+
+	for _, rd := range reportDtos {
+		if rd.Report.UID == "" {
+			continue
+		}
+
+		user, err := GetUser(rd.Report.UID)
+		if err != nil {
+			log.Printf("error find reports: %v\n", err)
+			return nil, err
+		}
+
+		reportDtoWithUsers = append(reportDtoWithUsers, domain.ReportDtoWithUser{
+			ID:     rd.ID,
+			Report: rd.Report,
+			User: domain.User{
+				Email:         user.Email,
+				EmailVerified: user.EmailVerified,
+				PhoneNumber:   user.PhoneNumber,
+				DisplayName:   user.DisplayName,
+				PhotoURL:      user.PhotoURL,
+				Disabled:      user.Disabled,
+			},
+		})
+
+		log.Println(reportDtoWithUsers)
+	}
+
+	return reportDtoWithUsers, nil
 }
 
 func FindReport(ID string) (domain.ReportDto, error) {
@@ -197,4 +236,30 @@ func delLike(ID string) error {
 	}
 
 	return nil
+}
+
+func UploadFile(file *multipart.FileHeader, reportId string) (string, error) {
+	src, err := file.Open()
+	if err != nil {
+		return "", err
+	}
+	defer src.Close()
+
+	client := config.GetStorage()
+
+	storagePath := "images/" + reportId + file.Filename
+
+	bucket, err := client.DefaultBucket()
+	if err != nil {
+		return "", err
+	}
+	dst := bucket.Object(storagePath)
+	writer := dst.NewWriter(config.Ctx)
+	defer writer.Close()
+
+	if _, err := io.Copy(writer, src); err != nil {
+		return "", err
+	}
+
+	return storagePath, nil
 }

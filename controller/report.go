@@ -57,9 +57,14 @@ func addReport(c *gin.Context) {
 		c.JSON(http.StatusNotFound, err)
 	}
 
-	log.Println(token)
-
 	report := domain.ReportDao{}
+	doc, _, err := service.JoinReport(token, report)
+
+	if err != nil {
+		log.Printf("[controller:report] error addReport : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
 	err = c.Bind(&report)
 
 	if err != nil {
@@ -67,7 +72,21 @@ func addReport(c *gin.Context) {
 		c.JSON(http.StatusNotFound, err)
 	}
 
-	_, _, err = service.JoinReport(token, report)
+	file, err := c.FormFile("Image")
+	if err != nil {
+		log.Printf("[controller:report] error addReport : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	imagePath, err := service.UploadFile(file, doc.ID)
+	if err != nil {
+		log.Printf("[controller:report] error addReport : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	report.ImagePath = imagePath
+
+	_, err = service.ModifyReport(token, doc.ID, report)
 
 	if err != nil {
 		log.Printf("[controller:report] error addReport : %v\n", err)
