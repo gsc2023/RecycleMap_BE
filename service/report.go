@@ -47,8 +47,6 @@ func FindReports() ([]domain.ReportDtoWithUser, error) {
 				Disabled:      user.Disabled,
 			},
 		})
-
-		log.Println(reportDtoWithUsers)
 	}
 
 	return reportDtoWithUsers, nil

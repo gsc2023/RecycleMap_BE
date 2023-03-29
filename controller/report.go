@@ -15,6 +15,7 @@ func reportRouter(report *gin.RouterGroup) {
 	report.GET("/:ID", getReport)
 	report.POST("/new", addReport)
 	report.POST("/:ID/like", toggleLikeOfReport)
+	report.GET("/address", getAddress)
 }
 
 func getAllReport(c *gin.Context) {
@@ -122,4 +123,22 @@ func toggleLikeOfReport(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, domain.StatusContainer{Status: status})
+}
+
+func getAddress(c *gin.Context) {
+	request := domain.AddressRequest{}
+	err := c.Bind(&request)
+
+	if err != nil {
+		log.Printf("[controller:report] error getAddress : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	address, err := service.FindAddress(request)
+	if err != nil {
+		log.Printf("[controller:report] error getAddress : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	c.JSON(http.StatusOK, address)
 }
