@@ -245,7 +245,7 @@ func UploadFile(file *multipart.FileHeader, reportId string) (string, error) {
 
 	client := config.GetStorage()
 
-	storagePath := "images/" + reportId + file.Filename
+	storagePath := "images/" + reportId
 
 	bucket, err := client.DefaultBucket()
 	if err != nil {

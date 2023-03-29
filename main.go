@@ -2,6 +2,7 @@ package main
 
 import (
 	"controller"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,6 +10,13 @@ import (
 func main() {
 	router := gin.Default()
 	router.Use(CORSMiddleware())
+
+	router.OPTIONS("/*any", func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "*")
+		c.AbortWithStatus(http.StatusNoContent)
+	})
 
 	controller.InitRouter(router)
 
@@ -21,11 +29,6 @@ func CORSMiddleware() gin.HandlerFunc {
 		c.Header("Access-Control-Allow-Credentials", "true")
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Methods", "*")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
 
 		c.Next()
 	}
