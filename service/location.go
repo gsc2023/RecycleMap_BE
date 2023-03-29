@@ -22,6 +22,30 @@ func SaveLocation(location domain.Location) (*firestore.DocumentRef, *firestore.
 	return repository.SaveLocation(location)
 }
 
-func FindAroundLocations(location domain.MyLocation) ([]domain.LocationDto, error) {
-	return repository.FindAllLocationsByPosition(location.Latitude, location.Longitude)
+func FindAroundLocations(location domain.MyLocation) ([]domain.LocationDtoWithAddress, error) {
+	locationDtos, err := repository.FindAllLocationsByPosition(location.Latitude, location.Longitude)
+
+	if err != nil {
+		return nil, err
+	}
+
+	locationDtoWithADdresses := []domain.LocationDtoWithAddress{}
+
+	for _, val := range locationDtos {
+		address, err := FindAddress(domain.AddressRequest{
+			Latitude:  val.Location.Latitude,
+			Longitude: val.Location.Longitude,
+		})
+
+		if err != nil {
+			return nil, err
+		}
+
+		locationDtoWithADdresses = append(locationDtoWithADdresses, domain.LocationDtoWithAddress{
+			LocationDto: val,
+			Address:     address,
+		})
+	}
+
+	return locationDtoWithADdresses, nil
 }

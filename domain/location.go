@@ -18,6 +18,11 @@ type LocationDto struct {
 	Location Location
 }
 
+type LocationDtoWithAddress struct {
+	LocationDto LocationDto
+	Address     interface{}
+}
+
 type LocationUrlParameter struct {
 	ID string `uri:"locationId"`
 }

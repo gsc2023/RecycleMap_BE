@@ -79,13 +79,13 @@ func getAroundLocation(c *gin.Context) {
 		c.JSON(http.StatusNotFound, err)
 	}
 
-	locationDto, err := service.FindAroundLocations(location)
+	locationDtoWithADdresses, err := service.FindAroundLocations(location)
 	if err != nil {
 		log.Printf("controller:location] error get around location : %v\n", err)
 		c.JSON(http.StatusNotFound, err)
 	}
 
-	c.JSON(http.StatusOK, locationDto)
+	c.JSON(http.StatusOK, locationDtoWithADdresses)
 }
 
 func saveLocation(c *gin.Context) {
