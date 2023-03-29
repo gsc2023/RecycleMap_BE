@@ -10,6 +10,7 @@ import (
 )
 
 func userRouter(user *gin.RouterGroup) {
+	user.GET("/", getUser)
 	user.GET("/comments", getAllMyLocation)
 	user.PATCH("/comments/:commentId", modifyComment)
 	user.DELETE("/comments/:commentId", delComment)
@@ -19,6 +20,35 @@ func userRouter(user *gin.RouterGroup) {
 	user.GET("/like", getMyLikePlace)
 	user.PATCH("/edit", editUser)
 	user.GET("/bookmark", getMyBookmark)
+}
+
+func getUser(c *gin.Context) {
+	tokenString := c.Request.Header.Get("AccessToken")
+	token, err := service.VerifyToken(domain.AccessTokenContainer{AccessToken: tokenString})
+
+	if err != nil {
+		log.Printf("[controller:user] error get my bookmark : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	user, err := service.GetUser(token.UID)
+
+	if err != nil {
+		log.Printf("[controller:user] error get my bookmark : %v\n", err)
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	c.JSON(http.StatusOK, domain.UserDto{
+		ID: token.UID,
+		User: domain.User{
+			Email:         user.Email,
+			EmailVerified: user.EmailVerified,
+			PhoneNumber:   user.PhoneNumber,
+			DisplayName:   user.DisplayName,
+			PhotoURL:      user.PhotoURL,
+			Disabled:      user.Disabled,
+		},
+	})
 }
 
 func getMyBookmark(c *gin.Context) {
